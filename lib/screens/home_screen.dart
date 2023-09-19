@@ -4,6 +4,8 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:mirror_wall/controller/webview_provider.dart';
 import 'package:mirror_wall/model/webview.dart';
 import 'package:mirror_wall/utils/urls.dart';
+import 'package:mirror_wall/widgets/bookmark.dart';
+import 'package:mirror_wall/widgets/bookmark_list.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -36,19 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           context: context,
                           showDragHandle: true,
                           builder: (context) {
-                            if(provider.bookmark.isEmpty){
-                            return Container(
-                              alignment: Alignment.center,
-                              width: double.infinity,
-                              height: double.infinity,
-                              child: const Text('No any bookmarks yet...'));
-                            }else{
-                              return ListView.builder(
-                                itemCount: provider.bookmark.length,
-                                itemBuilder: (context, index) {
-                                return ListTile(title: Text(provider.bookmark[index]));
-                              },);
-                            }
+                            return const BookmarkList();
                           },
                         );
                       },
@@ -150,11 +140,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   IconButton(
                       onPressed: () {}, icon: const Icon(Icons.home_rounded)),
-                  IconButton(
-                      onPressed: () {
-                        provider.webViewController?.getTitle();
-                      },
-                      icon: const Icon(Icons.bookmark_add_outlined)),
+                  Consumer<WebViewProvider>(
+                    builder: (context, value, child) {
+                      return IconButton(
+                          onPressed: () async {
+                            String? title =
+                                await value.webViewController?.getTitle();
+                            Uri? uri = await value.webViewController?.getUrl();
+                            provider.addBookmark(WebviewData(
+                                title: title.toString(), link: uri.toString()));
+                          },
+                          icon: const Icon(Icons.bookmark_add_outlined));
+                    },
+                  ),
                   IconButton(
                       onPressed: () {
                         provider.webViewController?.goBack();

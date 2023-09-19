@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:mirror_wall/main.dart';
 import 'package:mirror_wall/model/webview.dart';
 import 'package:mirror_wall/utils/urls.dart';
 
@@ -39,10 +42,34 @@ class WebViewProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  void addBookmark(Map map)async{
-    map[]
-    WebviewData data = WebviewData(title: await webViewController?.getTitle(), link: await webViewController?.getUrl().toString());
+  void addBookmark(WebviewData data) {
     bookmark.add(data);
+    saveBookmark();
     notifyListeners();
   }
+
+  void removeBookmark(WebviewData data){
+    bookmark.remove(data);
+    notifyListeners();
+  }
+
+  saveBookmark(){
+    List<String> bookmarkList = bookmark.map((e) => jsonEncode(e.toJson().toString())).toList();
+    pref.setStringList('bookmark', bookmarkList);
+  }
+
+  readBookmark(){
+    List<String>? bookmarkList = pref.getStringList('bookmark');
+    // print(bookmarkList);
+    if(bookmarkList != null){
+      bookmark = bookmarkList.map((e) => WebviewData.fromJson(jsonDecode(e))).toList();
+      print(bookmark);
+      // print(data);      
+    }
+  }
+
+  removePref(){
+
+  }
+
 }

@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:mirror_wall/controller/webview_provider.dart';
 import 'package:mirror_wall/screens/home_screen.dart';
 import 'package:provider/provider.dart';
-
-void main() {
+import 'package:shared_preferences/shared_preferences.dart';
+late SharedPreferences pref;
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  pref = await SharedPreferences.getInstance();
+  // print(pref.getStringList('bookmark'));
   runApp(const MyApp());
 }
 
