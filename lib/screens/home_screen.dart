@@ -4,7 +4,6 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:mirror_wall/controller/webview_provider.dart';
 import 'package:mirror_wall/model/webview.dart';
 import 'package:mirror_wall/utils/urls.dart';
-import 'package:mirror_wall/widgets/bookmark.dart';
 import 'package:mirror_wall/widgets/bookmark_list.dart';
 import 'package:provider/provider.dart';
 
@@ -16,7 +15,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final searchController = TextEditingController();
+  @override
+  void initState() {
+    Provider.of<WebViewProvider>(context, listen: false).readPref();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<WebViewProvider>(context, listen: false);
@@ -118,12 +122,24 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Consumer<WebViewProvider>(
                 builder: (context, wc, child) => CupertinoSearchTextField(
-                  controller: searchController,
+                  controller: wc.searchController,
                   onSubmitted: (value) {
-                    wc.webViewController?.loadUrl(
-                        urlRequest: URLRequest(
-                            url: Uri.parse(
-                                '$google/search?q=${searchController.text}')));
+                    switch (wc.url) {
+                      case google:
+                        wc.loadUrl(searchGoogle);
+                        break;
+                      case yahoo:
+                        wc.loadUrl(searchYahoo);
+                        break;
+                      case bing:
+                        wc.loadUrl(searchBing);
+                        break;
+                      case duckduckgo:
+                        wc.loadUrl(searchDuckduckgo);
+                        break;
+                      default:
+                        wc.loadUrl(searchGoogle);
+                    }
                   },
                 ),
               ),
@@ -147,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             String? title =
                                 await value.webViewController?.getTitle();
                             Uri? uri = await value.webViewController?.getUrl();
-                            provider.addBookmark(WebviewData(
+                            value.addBookmark(WebviewData(
                                 title: title.toString(), link: uri.toString()));
                           },
                           icon: const Icon(Icons.bookmark_add_outlined));

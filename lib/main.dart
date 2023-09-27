@@ -7,7 +7,6 @@ late SharedPreferences pref;
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   pref = await SharedPreferences.getInstance();
-  // print(pref.getStringList('bookmark'));
   runApp(const MyApp());
 }
 

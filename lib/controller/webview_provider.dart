@@ -6,70 +6,74 @@ import 'package:mirror_wall/main.dart';
 import 'package:mirror_wall/model/webview.dart';
 import 'package:mirror_wall/utils/urls.dart';
 
-class WebViewProvider extends ChangeNotifier{
+class WebViewProvider extends ChangeNotifier {
   double progress = 0;
   PullToRefreshController? pullToRefreshController;
   InAppWebViewController? webViewController;
-  String url = google; 
-  List<WebviewData> bookmark = [];
-
-  void setProgress(double p){
+  String url = google;
+  List<dynamic> bookmark = [];
+  TextEditingController searchController = TextEditingController();
+  void setProgress(double p) {
     progress = p;
     notifyListeners();
   }
 
-  void changeEngine(String? value){
-    switch(value){
+  void loadUrl(String searchUrl) {
+    webViewController?.loadUrl(
+      urlRequest:
+          URLRequest(url: Uri.parse('$searchUrl${searchController.text}')),
+    );
+  }
+
+  void changeEngine(String? value) {
+    switch (value) {
       case google:
-      url = google;
-      webViewController?.loadUrl(urlRequest: URLRequest(url: Uri.parse(google)));
-      break;
+        url = google;
+        webViewController?.loadUrl(
+            urlRequest: URLRequest(url: Uri.parse(google)));
+        break;
       case yahoo:
-      url = yahoo;
-      webViewController?.loadUrl(urlRequest: URLRequest(url: Uri.parse(yahoo)));
-      break;
+        url = yahoo;
+        webViewController?.loadUrl(
+            urlRequest: URLRequest(url: Uri.parse(yahoo)));
+        break;
       case bing:
-      url = bing;
-      webViewController?.loadUrl(urlRequest: URLRequest(url: Uri.parse(bing)));
-      break;
+        url = bing;
+        webViewController?.loadUrl(
+            urlRequest: URLRequest(url: Uri.parse(bing)));
+        break;
       case duckduckgo:
-      url = duckduckgo;
-      webViewController?.loadUrl(urlRequest: URLRequest(url: Uri.parse(duckduckgo)));
-      break;
+        url = duckduckgo;
+        webViewController?.loadUrl(
+            urlRequest: URLRequest(url: Uri.parse(duckduckgo)));
+        break;
       default:
-      url = google;
+        url = google;
     }
     notifyListeners();
   }
 
   void addBookmark(WebviewData data) {
     bookmark.add(data);
-    saveBookmark();
+    setPref();
     notifyListeners();
   }
 
-  void removeBookmark(WebviewData data){
+  void removeBookmark(WebviewData data) {
     bookmark.remove(data);
+    setPref();
     notifyListeners();
   }
 
-  saveBookmark(){
-    List<String> bookmarkList = bookmark.map((e) => jsonEncode(e.toJson().toString())).toList();
-    pref.setStringList('bookmark', bookmarkList);
+  void setPref() {
+    List<String> save = bookmark.map((e) => jsonEncode(e.toJson())).toList();
+    pref.setStringList('bookmark', save);
   }
 
-  readBookmark(){
-    List<String>? bookmarkList = pref.getStringList('bookmark');
-    // print(bookmarkList);
-    if(bookmarkList != null){
-      bookmark = bookmarkList.map((e) => WebviewData.fromJson(jsonDecode(e))).toList();
-      print(bookmark);
-      // print(data);      
+  void readPref() {
+    List<String>? data = pref.getStringList('bookmark');
+    if (data != null) {
+      bookmark = data.map((e) => WebviewData.fromJson(jsonDecode(e))).toList();
     }
   }
-
-  removePref(){
-
-  }
-
 }
